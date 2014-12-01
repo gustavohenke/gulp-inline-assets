@@ -1,0 +1,16 @@
+{
+    "name": "gulp-inline-assets",
+    "version": "0.0.1",
+    "dependencies": {
+        "css": "latest",
+        "mime": "latest",
+        "needle": "latest",
+        "through2": "latest"
+    },
+    "devDependencies": {
+        "mocha": "latest"
+    },
+    "scripts": {
+        "test": "mocha"
+    }
+}
