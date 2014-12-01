@@ -1,6 +1,9 @@
 {
     "name": "gulp-inline-assets",
     "version": "0.0.1",
+    "description": "Gulp plugin for inlining CSS assets",
+    "repository": "gustavohenke/gulp-inline-assets",
+    "license": "MIT",
     "dependencies": {
         "css": "latest",
         "mime": "latest",
@@ -10,6 +13,15 @@
     "devDependencies": {
         "mocha": "latest"
     },
+    "engines": {
+        "node": ">=0.10.0"
+    },
+    "keywords": [
+        "gulpplugin",
+        "css",
+        "inline",
+        "assets"
+    ],
     "scripts": {
         "test": "mocha"
     }
