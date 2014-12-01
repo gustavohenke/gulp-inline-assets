@@ -11,6 +11,7 @@
         "through2": "latest"
     },
     "devDependencies": {
+        "gulp-util": "latest",
         "mocha": "latest"
     },
     "engines": {
