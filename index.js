@@ -112,13 +112,17 @@ module.exports = function() {
         var str, ast;
 
         if ( file.isNull() ) {
-            cb( null, file );
-            return;
+            return cb( null, file );
         }
 
         CURRENT_DIR = file.base;
         str = file.contents.toString( "utf8" );
-        ast = css.parse( str );
+
+        try {
+            ast = css.parse( str );
+        } catch ( e ) {
+            return cb( null, file );
+        }
 
         iterate( ast, function () {
             file.contents = new Buffer( css.stringify( ast ) );
