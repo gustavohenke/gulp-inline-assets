@@ -1,4 +1,5 @@
 # gulp-inline-assets
+[![Build Status](https://img.shields.io/travis/gustavohenke/gulp-inline-assets.svg?style=flat-square)](https://travis-ci.org/gustavohenke/gulp-inline-assets)
 > Inline assets (images, fonts) in a CSS file in the form of a data URI.
 
 ## Install
