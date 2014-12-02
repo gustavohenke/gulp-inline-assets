@@ -1,6 +1,7 @@
 "use strict";
 
 var css = require( "css" );
+var gutil = require( "gulp-util" );
 var through = require( "through2" );
 var parseDeclaration = require( "./lib/parseDeclaration" );
 
@@ -65,7 +66,7 @@ module.exports = function() {
 
         iterate( file, ast, function ( err ) {
             if ( err ) {
-                return cb( err );
+                return cb( new gutil.PluginError( "gulp-inline-assets", err.message ) );
             }
 
             file.contents = new Buffer( css.stringify( ast ) );

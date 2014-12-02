@@ -107,7 +107,7 @@ describe( "", function () {
             }).on( "error", function ( err ) {
                 assert.equal(
                     err.message,
-                    "Could not fetch http://localhost:8766/ - ECONNREFUSED"
+                    "Could not fetch http://localhost:8766/"
                 );
                 cb();
             });
