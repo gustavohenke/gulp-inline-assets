@@ -53,6 +53,32 @@ describe( "", function () {
             stream.write( fixture( "unquoted.css" ) );
         });
 
+        it( "should be fetched even if it has a hash", function ( cb ) {
+            var stream = inline();
+
+            stream.on( "data", function ( file ) {
+                assert.equal(
+                    file.contents.toString( "utf8" ),
+                    fs.readFileSync( __dirname + "/expected/output.css", "utf8" )
+                );
+                cb();
+            });
+            stream.write( fixture( "local-with-hash.css" ) );
+        });
+
+        it( "should be fetched even if it has a query string", function ( cb ) {
+            var stream = inline();
+
+            stream.on( "data", function ( file ) {
+                assert.equal(
+                    file.contents.toString( "utf8" ),
+                    fs.readFileSync( __dirname + "/expected/output.css", "utf8" )
+                );
+                cb();
+            });
+            stream.write( fixture( "local-with-querystring.css" ) );
+        });
+
         it( "should trigger error when they're not available", function ( cb ) {
             var stream = inline();
 
