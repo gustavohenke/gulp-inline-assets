@@ -1,5 +1,6 @@
 var assert = require( "assert" );
 var fs = require( "fs" );
+var path = require( "path" );
 var http = require( "http" );
 var gutil = require( "gulp-util" );
 var inline = require( "../" );
@@ -25,56 +26,93 @@ describe( "", function () {
         server.close();
     });
 
-    it( "should fetch local resources", function ( cb ) {
-        var stream = inline();
+    describe( "local resources", function () {
+        it( "should be fetched", function ( cb ) {
+            var stream = inline();
 
-        stream.on( "data", function ( file ) {
-            assert.equal(
-                file.contents.toString( "utf8" ),
-                fs.readFileSync( __dirname + "/expected/output.css", "utf8" )
-            );
-            cb();
+            stream.on( "data", function ( file ) {
+                assert.equal(
+                    file.contents.toString( "utf8" ),
+                    fs.readFileSync( __dirname + "/expected/output.css", "utf8" )
+                );
+                cb();
+            });
+            stream.write( fixture( "local.css" ) );
         });
-        stream.write( fixture( "local.css" ) );
+
+        it( "should be fetched when they are unquoted", function ( cb ) {
+            var stream = inline();
+
+            stream.on( "data", function ( file ) {
+                assert.equal(
+                    file.contents.toString( "utf8" ),
+                    fs.readFileSync( __dirname + "/expected/unquoted.css", "utf8" )
+                );
+                cb();
+            });
+            stream.write( fixture( "unquoted.css" ) );
+        });
+
+        it( "should trigger error when they're not available", function ( cb ) {
+            var stream = inline();
+
+            stream.on( "data", function ( file ) {
+                assert.fail( file, null, "should not emit file", "==" );
+                cb();
+            }).on( "error", function ( err ) {
+                assert.equal(
+                    err.message,
+                    "Could not read file: " +
+                    path.join( __dirname, "fixtures", "font-unavailable.woff" )
+                );
+                cb();
+            });
+            stream.write( fixture( "local-unavailable.css" ) );
+        });
     });
 
-    it( "should fetch local resources when they are unquoted", function ( cb ) {
-        var stream = inline();
+    describe( "external resources", function () {
+        it( "should be fetched when they start with http://", function ( cb ) {
+            var stream = inline();
 
-        stream.on( "data", function ( file ) {
-            assert.equal(
-                file.contents.toString( "utf8" ),
-                fs.readFileSync( __dirname + "/expected/unquoted.css", "utf8" )
-            );
-            cb();
+            stream.on( "data", function ( file ) {
+                assert.equal(
+                    file.contents.toString( "utf8" ),
+                    fs.readFileSync( __dirname + "/expected/output.css", "utf8" )
+                );
+                cb();
+            });
+            stream.write( fixture( "remote1.css" ) );
         });
-        stream.write( fixture( "unquoted.css" ) );
-    });
 
-    it( "should fetch external resources starting with http://", function ( cb ) {
-        var stream = inline();
+        it( "should be fetched when they start with //", function ( cb ) {
+            var stream = inline();
 
-        stream.on( "data", function ( file ) {
-            assert.equal(
-                file.contents.toString( "utf8" ),
-                fs.readFileSync( __dirname + "/expected/output.css", "utf8" )
-            );
-            cb();
+            stream.on( "data", function ( file ) {
+                assert.equal(
+                    file.contents.toString( "utf8" ),
+                    fs.readFileSync( __dirname + "/expected/output.css", "utf8" )
+                );
+                cb();
+            });
+            stream.write( fixture( "remote2.css" ) );
         });
-        stream.write( fixture( "remote1.css" ) );
-    });
 
-    it( "should fetch external resources starting with //", function ( cb ) {
-        var stream = inline();
+        it( "should trigger error when they're not available", function ( cb ) {
+            var stream = inline();
 
-        stream.on( "data", function ( file ) {
-            assert.equal(
-                file.contents.toString( "utf8" ),
-                fs.readFileSync( __dirname + "/expected/output.css", "utf8" )
-            );
-            cb();
+            stream.on( "data", function ( file ) {
+                assert.fail( file, null, "should not emit file", "==" );
+                cb();
+            }).on( "error", function ( err ) {
+                assert.equal(
+                    err.message,
+                    "Could not fetch http://localhost:8766/ - ECONNREFUSED"
+                );
+                cb();
+            });
+            stream.write( fixture( "remote-unavailable.css" ) );
         });
-        stream.write( fixture( "remote2.css" ) );
     });
 
     it( "should ignore unknown formats", function ( cb ) {

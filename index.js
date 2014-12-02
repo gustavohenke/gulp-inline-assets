@@ -2,15 +2,19 @@ var fs = require( "fs" );
 var path = require( "path" );
 
 var css = require( "css" );
+var gutil = require( "gulp-util" );
 var needle = require( "needle" );
 var through = require( "through2" );
 var mime = require( "mime" );
 
-var CURRENT_DIR = "/";
 var URL_REGEX = /url\(\s*(?:"|')?(.+?)(?:"|')?\s*\)/;
 var FORMAT_REGEX = /format\(\s*(?:"|')?(.+?)(?:"|')?\s*\)/;
 
-function parseDeclaration( decl, cb ) {
+function newError( msg ) {
+    return new gutil.PluginError( "gulp-inline-assets", msg );
+}
+
+function parseDeclaration( file, decl, cb ) {
     var count = 0;
     var valueParts = decl.value;
     var finish = function () {
@@ -26,7 +30,7 @@ function parseDeclaration( decl, cb ) {
 
     valueParts = valueParts.split( "," );
     valueParts.forEach(function ( part, i ) {
-        var url, format, stream, type;
+        var formattedUrl, url, format, stream, type;
         var dataUri = "";
 
         part = part.trim();
@@ -43,13 +47,33 @@ function parseDeclaration( decl, cb ) {
         format = format ? format[ 1 ].trim() : null;
 
         if ( /^(?:http|\/\/)/.test( url ) ) {
-            stream = needle.get( url.replace( /^\/\//, "http://" ), {
+            formattedUrl = url.replace( /^\/\//, "http://" );
+            stream = needle.get( formattedUrl, {
                 compressed: true
             }, function ( err, response ) {
+                var status;
+
+                if ( err ) {
+                    return cb( newError( "Could not fetch " + formattedUrl + " - " + err.code ) );
+                }
+
+                // Validate the status code we received
+                status = response.statusCode;
+                if ( status < 200 || status > 299 ) {
+                    return cb( newError(
+                        "Could not fetch " + formattedUrl +
+                        " - status " + status
+                    ));
+                }
+
                 type = response.headers[ "content-type" ];
             });
         } else {
-            stream = fs.createReadStream( path.join( CURRENT_DIR, url ) );
+            formattedUrl = path.resolve( path.dirname( file.path ), url );
+            stream = fs.createReadStream( formattedUrl );
+            stream.on( "error", function () {
+                cb( newError( "Could not read file: " + formattedUrl ) );
+            });
 
             // Use the mime type based in the format first, and then the file extension, if we're
             // not dealing with a @font-face rule
@@ -75,7 +99,7 @@ function parseDeclaration( decl, cb ) {
     });
 }
 
-function iterate( ast, cb ) {
+function iterate( file, ast, cb ) {
     var iterable, iterator;
     var count = 0;
 
@@ -103,11 +127,15 @@ function iterate( ast, cb ) {
     }
 
     iterable.forEach(function ( item ) {
-        iterator( item, function () {
+        var finished = false;
+        iterator( file, item, function ( err ) {
             count++;
 
-            if ( count === iterable.length ) {
-                cb();
+            // If we aren't finished yet but there's an error or the last iteration happened,
+            // then this means we're good to invoke the callback
+            if ( !finished && ( err || count === iterable.length ) ) {
+                cb( err );
+                finished = true;
             }
         });
     });
@@ -121,7 +149,6 @@ module.exports = function() {
             return cb( null, file );
         }
 
-        CURRENT_DIR = file.base;
         str = file.contents.toString( "utf8" );
 
         try {
@@ -131,7 +158,11 @@ module.exports = function() {
             return cb( null, file );
         }
 
-        iterate( ast, function () {
+        iterate( file, ast, function ( err ) {
+            if ( err ) {
+                return cb( err );
+            }
+
             file.contents = new Buffer( css.stringify( ast ) );
             cb( null, file );
         });
