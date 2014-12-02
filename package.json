@@ -6,12 +6,12 @@
     "license": "MIT",
     "dependencies": {
         "css": "^2.1.0",
+        "gulp-util": "^3.0.1",
         "mime": "^1.2.11",
         "needle": "^0.7.10",
         "through2": "^0.6.3"
     },
     "devDependencies": {
-        "gulp-util": "^3.0.1",
         "mocha": "^2.0.1"
     },
     "engines": {
