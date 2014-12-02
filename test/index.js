@@ -64,6 +64,19 @@ describe( "", function () {
         stream.write( fixture( "remote2.css" ) );
     });
 
+    it( "should fetch local resources when they are unquoted", function ( cb ) {
+        var stream = inline();
+
+        stream.on( "data", function ( file ) {
+            assert.equal(
+                file.contents.toString( "utf8" ),
+                fs.readFileSync( __dirname + "/expected/unquoted.css", "utf8" )
+            );
+            cb();
+        });
+        stream.write( fixture( "unquoted.css" ) );
+    });
+
     it( "should ignore unknown formats", function ( cb ) {
         var stream = inline();
         stream.on( "data", function ( file ) {

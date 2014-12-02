@@ -7,8 +7,8 @@ var through = require( "through2" );
 var mime = require( "mime" );
 
 var CURRENT_DIR = "/";
-var URL_REGEX = /url\(\s+(?:"|')(.+?)(?:"|')\s+\)/;
-var FORMAT_REGEX = /format\(\s+(?:"|')(.+?)(?:"|')\s+\)/;
+var URL_REGEX = /url\(\s*(?:"|')?(.+?)(?:"|')?\s*\)/;
+var FORMAT_REGEX = /format\(\s*(?:"|')?(.+?)(?:"|')?\s*\)/;
 
 function parseDeclaration( decl, cb ) {
     var count = 0;
@@ -30,13 +30,16 @@ function parseDeclaration( decl, cb ) {
         var dataUri = "";
 
         part = part.trim();
-        url = part.match( URL_REGEX )[ 1 ];
-        format = part.match( FORMAT_REGEX )[ 1 ];
+        url = part.match( URL_REGEX );
+        format = part.match( FORMAT_REGEX );
 
         if ( !url || !format ) {
             count++;
             return finish();
         }
+
+        url = url[ 1 ].trim();
+        format = format[ 1 ].trim();
 
         if ( /^http|\/\//.test( url ) ) {
             url = url.replace( /^\/\//, "http://" );
