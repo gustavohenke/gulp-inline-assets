@@ -33,13 +33,14 @@ function parseDeclaration( decl, cb ) {
         url = part.match( URL_REGEX );
         format = part.match( FORMAT_REGEX );
 
-        if ( !url || !format ) {
+        // If no URL is specified, let's ignore it
+        if ( !url ) {
             count++;
             return finish();
         }
 
         url = url[ 1 ].trim();
-        format = format[ 1 ].trim();
+        format = format ? format[ 1 ].trim() : null;
 
         if ( /^http|\/\//.test( url ) ) {
             stream = needle.get( url.replace( /^\/\//, "http://" ), {
@@ -49,6 +50,9 @@ function parseDeclaration( decl, cb ) {
             });
         } else {
             stream = fs.createReadStream( path.join( CURRENT_DIR, url ) );
+
+            // Use the mime type based in the format first, and then the file extension, if we're
+            // not dealing with a @font-face rule
             type = mime.lookup( format || url );
         }
 
@@ -123,6 +127,7 @@ module.exports = function() {
         try {
             ast = css.parse( str );
         } catch ( e ) {
+            // If some error occurs while parsing the file, we'll not do anything with it
             return cb( null, file );
         }
 
