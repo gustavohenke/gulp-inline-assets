@@ -42,7 +42,7 @@ function parseDeclaration( decl, cb ) {
         url = url[ 1 ].trim();
         format = format ? format[ 1 ].trim() : null;
 
-        if ( /^http|\/\//.test( url ) ) {
+        if ( /^(?:http|\/\/)/.test( url ) ) {
             stream = needle.get( url.replace( /^\/\//, "http://" ), {
                 compressed: true
             }, function ( err, response ) {
