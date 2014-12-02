@@ -42,8 +42,7 @@ function parseDeclaration( decl, cb ) {
         format = format[ 1 ].trim();
 
         if ( /^http|\/\//.test( url ) ) {
-            url = url.replace( /^\/\//, "http://" );
-            stream = needle.get( url, {
+            stream = needle.get( url.replace( /^\/\//, "http://" ), {
                 compressed: true
             }, function ( err, response ) {
                 type = response.headers[ "content-type" ];
