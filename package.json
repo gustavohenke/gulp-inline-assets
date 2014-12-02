@@ -18,7 +18,8 @@
         "node": ">=0.10.0"
     },
     "files": [
-        "index.js"
+        "index.js",
+        "lib"
     ],
     "keywords": [
         "gulpplugin",
