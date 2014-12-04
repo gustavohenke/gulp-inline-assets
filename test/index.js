@@ -1,7 +1,7 @@
 var assert = require( "assert" );
 var fs = require( "fs" );
 var path = require( "path" );
-var http = require( "http" );
+var https = require( "https" );
 var gutil = require( "gulp-util" );
 var inline = require( "../" );
 
@@ -15,11 +15,17 @@ var fixture = function ( file ) {
     });
 };
 
-var server = http.createServer(function ( req, res ) {
+var server = https.createServer({
+    key: fs.readFileSync( __dirname + "/ssl/server.key" ),
+    cert: fs.readFileSync( __dirname + "/ssl/server.crt" ),
+    rejectUnauthorized: false
+}, function ( req, res ) {
     res.statusCode = 200;
     res.setHeader( "content-type", "application/font-woff" );
     fs.createReadStream( __dirname + "/fixtures/font.woff" ).pipe( res );
-}).listen( 8765 );
+}).listen( 8765, function() {
+    console.log("asd");
+});
 
 describe( "", function () {
     after(function () {
@@ -133,7 +139,7 @@ describe( "", function () {
             }).on( "error", function ( err ) {
                 assert.equal(
                     err.message,
-                    "Could not fetch http://localhost:8766/"
+                    "Could not fetch https://localhost:8766/"
                 );
                 cb();
             });
