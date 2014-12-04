@@ -104,7 +104,7 @@ describe( "", function () {
     });
 
     describe( "external resources", function () {
-        it( "should be fetched when they start with http://", function ( cb ) {
+        it( "should be fetched when they start with http or https", function ( cb ) {
             var stream = inline();
 
             stream.on( "data", function ( file ) {
