@@ -23,9 +23,7 @@ var server = https.createServer({
     res.statusCode = 200;
     res.setHeader( "content-type", "application/font-woff" );
     fs.createReadStream( __dirname + "/fixtures/font.woff" ).pipe( res );
-}).listen( 8765, function() {
-    console.log("asd");
-});
+}).listen( 8765 );
 
 describe( "", function () {
     after(function () {
