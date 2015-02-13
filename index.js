@@ -5,7 +5,7 @@ var gutil = require( "gulp-util" );
 var through = require( "through2" );
 var parseDeclaration = require( "./lib/parseDeclaration" );
 
-function iterate( file, ast, cb ) {
+function iterate( file, ast, options, cb ) {
     var iterable, iterator;
     var count = 0;
 
@@ -34,7 +34,7 @@ function iterate( file, ast, cb ) {
 
     iterable.forEach(function ( item ) {
         var finished = false;
-        iterator( file, item, function ( err ) {
+        iterator( file, item, options, function ( err ) {
             count++;
 
             // If we aren't finished yet but there's an error or the last iteration happened,
@@ -47,7 +47,7 @@ function iterate( file, ast, cb ) {
     });
 }
 
-module.exports = function() {
+module.exports = function( options ) {
     return through.obj(function ( file, enc, cb ) {
         var str, ast;
 
@@ -64,7 +64,7 @@ module.exports = function() {
             return cb( null, file );
         }
 
-        iterate( file, ast, function ( err ) {
+        iterate( file, ast, options || {}, function ( err ) {
             if ( err ) {
                 return cb( new gutil.PluginError( "gulp-inline-assets", err.message ) );
             }
