@@ -156,4 +156,19 @@ describe( "", function () {
         });
         stream.write( fixture( "unknown-format" ) );
     });
+
+    it( "should allow ignoring errors when they happen", function ( cb ) {
+        var stream = inline({
+            ignoreErrors: true
+        });
+
+        stream.on( "data", function ( file ) {
+            assert.equal(
+                file.contents.toString( "utf8" ),
+                fs.readFileSync( __dirname + "/fixtures/error.css", "utf8" )
+            );
+            cb();
+        });
+        stream.write( fixture( "error.css" ) );
+    });
 });
