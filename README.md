@@ -9,16 +9,27 @@ $ npm install --save-dev gulp-inline-assets
 ```
 
 ## Usage
+
+```js
+```
+
 ```javascript
 var gulp = require('gulp');
 var inlineAssets = require('gulp-inline-assets');
 
 gulp.task('default', function () {
     return gulp.src('src/app.css')
-        .pipe(inlineAssets())
+        .pipe(inlineAssets(options))
         .pipe(gulp.dest('dist'));
 });
 ```
+
+## Options
+
+### ignoreErrors
+Type: `boolean`
+
+Determines if URLs with errors should be ignored.
 
 ## License
 MIT @ Gustavo Henke
